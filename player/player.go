@@ -14,3 +14,27 @@ embedded_components {
     w: 0.9238795
   }
 }
+embedded_components {
+  id: "sprite"
+  type: "sprite"
+  data: "default_animation: \"down\"\n"
+  "material: \"/builtins/materials/sprite.material\"\n"
+  "textures {\n"
+  "  sampler: \"texture_sampler\"\n"
+  "  texture: \"/assets/people/blank/blank_idle.tilesource\"\n"
+  "}\n"
+  ""
+  position {
+    x: -10.0
+    y: 10.0
+  }
+  rotation {
+    z: 0.38268343
+    w: 0.9238795
+  }
+  scale {
+    x: 0.1
+    y: 0.1
+    z: 0.1
+  }
+}

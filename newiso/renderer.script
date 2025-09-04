@@ -19,6 +19,36 @@ go.property('br_buffer', resource.buffer('/newiso/buffers/br.buffer'))
 -- id, x, y
 local meshes = {}
 
+local function calculate_normals(vertices)
+	local normals = {}
+
+	-- Process every 9 values as a triangle (3 vertices × 3 components each)
+	for i = 1, #vertices, 9 do
+		-- Extract the 3 vertices of this triangle
+		local v1 = vmath.vector3(vertices[i], vertices[i+1], vertices[i+2])
+		local v2 = vmath.vector3(vertices[i+3], vertices[i+4], vertices[i+5])
+		local v3 = vmath.vector3(vertices[i+6], vertices[i+7], vertices[i+8])
+
+		-- Calculate face normal
+		local edge1 = v2 - v1
+		local edge2 = v3 - v1
+		local normal = vmath.normalize(vmath.cross(edge1, edge2))
+
+		-- Add the same normal for all 3 vertices of this triangle (9 components)
+		normals[i] = normal.x     -- v1.x normal
+		normals[i+1] = normal.y   -- v1.y normal
+		normals[i+2] = normal.z   -- v1.z normal
+		normals[i+3] = normal.x   -- v2.x normal
+		normals[i+4] = normal.y   -- v2.y normal
+		normals[i+5] = normal.z   -- v2.z normal
+		normals[i+6] = normal.x   -- v3.x normal
+		normals[i+7] = normal.y   -- v3.y normal
+		normals[i+8] = normal.z   -- v3.z normal
+	end
+
+	return normals
+end
+
 local function update_mesh(chunk)
 	-- Clear existing data
 	chunk.vertices = {}
@@ -34,6 +64,8 @@ local function update_mesh(chunk)
 			end
 		end
 	end
+
+	chunk.normals = calculate_normals(chunk.vertices)
 end
 
 local function render_chunk(chunk, mesh)
@@ -48,10 +80,11 @@ local function render_chunk(chunk, mesh)
 	b_utils.render_mesh(chunk, msg.url(nil, mesh.id, 'mesh'))
 end
 
-local function create_mesh(buffer)
+local function create_mesh(buffer, light)
 	local id = factory.create(f_url, vmath.vector3(0, 0, 0))
 
 	go.set(msg.url(nil, id, 'mesh'), 'vertices', buffer)
+	go.set(msg.url(nil, id, 'mesh'), 'light', light)
 	
 	local mesh = {
 		x = 0,
@@ -65,17 +98,37 @@ local function create_mesh(buffer)
 end
 
 function init(self)
-	create_mesh(self.tl_buffer)
-	create_mesh(self.tm_buffer)
-	create_mesh(self.tr_buffer)
+	-- Angled overhead light (down and slightly forward/to the side)
+	self.light = vmath.vector4(1, 1, 2, 0)
 
-	create_mesh(self.ml_buffer)
-	create_mesh(self.mm_buffer)
-	create_mesh(self.mr_buffer)
+	create_mesh(self.tl_buffer, self.light)
+	create_mesh(self.tm_buffer, self.light)
+	create_mesh(self.tr_buffer, self.light)
 
-	create_mesh(self.bl_buffer)
-	create_mesh(self.bm_buffer)
-	create_mesh(self.br_buffer)
+	create_mesh(self.ml_buffer, self.light)
+	create_mesh(self.mm_buffer, self.light)
+	create_mesh(self.mr_buffer, self.light)
+
+	create_mesh(self.bl_buffer, self.light)
+	create_mesh(self.bm_buffer, self.light)
+	create_mesh(self.br_buffer, self.light)
+
+	msg.post('.', 'acquire_input_focus')
+end
+
+function on_input(self, action_id, action)
+	-- move directional light based on input
+	local w, h = window.get_size()
+
+	local halfwidth = w * 0.5
+	local halfheight = h * 0.5
+
+	self.light.x = 2 * ((action.x - halfwidth) / halfwidth)
+	self.light.y = 2 * ((action.y - halfheight) / halfheight)
+
+	for i = 0, #meshes do
+		go.set(msg.url(nil, meshes[i].id, 'mesh'), 'light', self.light)
+	end
 end
 
 local function get_free_mesh()
