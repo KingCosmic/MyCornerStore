@@ -1,0 +1,131 @@
+local world = require 'newiso.world'
+local utils = require 'newiso.utils'
+local b_utils = require 'bufferutils'
+
+local f_url = '#factory'
+
+go.property('tl_buffer', resource.buffer('/newiso/buffers/tl.buffer'))
+go.property('tm_buffer', resource.buffer('/newiso/buffers/tm.buffer'))
+go.property('tr_buffer', resource.buffer('/newiso/buffers/tr.buffer'))
+
+go.property('ml_buffer', resource.buffer('/newiso/buffers/ml.buffer'))
+go.property('mm_buffer', resource.buffer('/newiso/buffers/mm.buffer'))
+go.property('mr_buffer', resource.buffer('/newiso/buffers/mr.buffer'))
+
+go.property('bl_buffer', resource.buffer('/newiso/buffers/bl.buffer'))
+go.property('bm_buffer', resource.buffer('/newiso/buffers/bm.buffer'))
+go.property('br_buffer', resource.buffer('/newiso/buffers/br.buffer'))
+
+-- id, x, y
+local meshes = {}
+
+local function update_mesh(chunk)
+	-- Clear existing data
+	chunk.vertices = {}
+	chunk.uvs = {}
+	chunk.normals = {}
+	chunk.colors = {}
+
+	-- start at the top of our chunk and move down
+	for z = #chunk.layers, 1, -1 do
+		for y = 1, world.chunk_height do
+			for x = 1, world.chunk_width do
+				utils.add_terrain_quad(chunk, x, y, z)
+			end
+		end
+	end
+end
+
+local function render_chunk(chunk, mesh)
+	mesh.x = chunk.x
+	mesh.y = chunk.y
+	mesh.active = true
+
+	go.set_position(vmath.vector3(mesh.x * utils.TILE_WIDTH * world.chunk_width, mesh.y * utils.TILE_HEIGHT * world.chunk_height, 0), mesh.id)
+
+	update_mesh(chunk)
+
+	b_utils.render_mesh(chunk, msg.url(nil, mesh.id, 'mesh'))
+end
+
+local function create_mesh(buffer)
+	local id = factory.create(f_url, vmath.vector3(0, 0, 0))
+
+	go.set(msg.url(nil, id, 'mesh'), 'vertices', buffer)
+	
+	local mesh = {
+		x = 0,
+		y = 0,
+		active = false,
+		buffer,
+		id = id
+	}
+
+	table.insert(meshes, mesh)
+end
+
+function init(self)
+	create_mesh(self.tl_buffer)
+	create_mesh(self.tm_buffer)
+	create_mesh(self.tr_buffer)
+
+	create_mesh(self.ml_buffer)
+	create_mesh(self.mm_buffer)
+	create_mesh(self.mr_buffer)
+
+	create_mesh(self.bl_buffer)
+	create_mesh(self.bm_buffer)
+	create_mesh(self.br_buffer)
+end
+
+local function get_free_mesh()
+	for m = 1, #meshes do
+		local mesh = meshes[m]
+
+		if not mesh.active then
+			return mesh, m
+		end
+	end
+
+	return nil, -1
+end
+
+function update(self, dt)
+	local pos = go.get_position('/rendy')
+	local current_chunks = utils.get_chunks_in_radius(pos.x, pos.y, 1)
+
+	local active_mesh_keys = {}
+	for m = 1, #meshes do
+		local mesh = meshes[m]
+		local key = utils.get_chunk_key(mesh.x, mesh.y)
+		if not current_chunks[key] then
+			mesh.active = false
+		else
+			active_mesh_keys[key] = true
+		end
+	end
+
+	for chunk_key, c_pos in pairs(current_chunks) do
+		if not active_mesh_keys[chunk_key] then
+			local mesh = get_free_mesh()
+
+			if mesh then
+				local chunk = world.get_chunk(c_pos.x, c_pos.y)
+				render_chunk(chunk, mesh)
+			end
+		end
+	end
+end
+
+function on_message(self, message_id, message)
+	if message_id == hash('update_mesh') then
+		for m = 1, #meshes do
+			local mesh = meshes[m]
+
+			if mesh.x == message.x and mesh.y == message.y then
+				local chunk = world.get_chunk(message.x, message.y)
+				render_chunk(chunk, mesh)
+			end
+		end
+	end
+end

@@ -1,0 +1,22 @@
+local monarch = require "monarch.monarch"
+
+function init(self)
+    msg.post('.', 'acquire_input_focus')
+end
+
+function final(self)
+end
+
+function update(self, dt)
+end
+
+function on_message(self, message_id, message, sender)
+end
+
+function on_input(self, action_id, action)
+    if action_id == hash('pause_game') and action.pressed then
+        monarch.show(hash('pausemenu'))
+    elseif action_id == hash('start_building') and action.pressed then
+        monarch.show(hash('buildmenu'))
+    end
+end

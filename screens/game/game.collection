@@ -1,0 +1,25 @@
+name: "game"
+instances {
+  id: "tilemap"
+  prototype: "/isometric/tilemap.go"
+  position {
+    x: 640.0
+  }
+}
+instances {
+  id: "player"
+  prototype: "/player/player.go"
+  position {
+    x: 672.0
+    y: 342.0
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "go"
+  data: "components {\n"
+  "  id: \"monarch\"\n"
+  "  component: \"/screens/game/game.gui\"\n"
+  "}\n"
+  ""
+}

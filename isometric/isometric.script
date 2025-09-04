@@ -1,0 +1,55 @@
+local board = require('isometric.board')
+
+local iso_utils = require 'isometric.utils'
+-- local test = require 'shop_system.test'
+-- local shop = require 'shop_system.shop'
+
+local function render_map(scene)
+	local center_pos = go.get_position()
+
+	local start_pos = vmath.vector3(center_pos.x, center_pos.y, center_pos.z)
+
+	for y = 0, board.height - 1, 1 do
+		for x = 0, board.width - 1, 1 do
+			-- convert our x and y index to a vector object
+			local tilePos = vmath.vector3(x, y, 0)
+
+			-- convert our tile position to screen coordinates.
+			local converted_pos = iso_utils.to_screen_coordinates(tilePos)
+
+			local tile_data = board.getTile(x, y)
+
+			-- Proper isometric depth calculation
+			-- Higher x + y values should be further back (lower z)
+			local depth = -(x + y) * 0.01
+			converted_pos.z = depth
+
+			-- our converted coords are relative to 0,0 so we need to add our offset.
+			local tile_id = factory.create('#tile_factory', start_pos + converted_pos)
+
+			sprite.play_flipbook(msg.url(nil, tile_id, 'sprite'), tile_data.sprite)
+
+			board.attachGoToTile(x, y, tile_id)
+		end
+	end
+end
+
+-- local function setup_test_pois(self)
+-- 	local test_pois = test.get_quick_test_pois()
+-- 	local empty_tiles = shop.find_empty_walkable_tiles()
+-- 
+-- 	for i = 1, #test_pois, 1 do
+-- 		local poi = test_pois[i]
+-- 
+-- 		local tile = empty_tiles[math.random(1, #empty_tiles)]
+-- 
+-- 		shop.spawn_poi(poi, tile)
+-- 	end
+-- end
+
+function init(self)
+	print('rendering map')
+	board.getDefaultMap()
+	render_map(self)
+	-- setup_test_pois(self)
+end

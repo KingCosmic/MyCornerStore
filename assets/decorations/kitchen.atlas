@@ -1,0 +1,46 @@
+images {
+  image: "/assets/decorations/kitchen/beige/1x1_KitchenDishWasher_MergedBeige.png"
+}
+images {
+  image: "/assets/decorations/kitchen/blue/1x1_KitchenDishWasher_MergedBlue.png"
+}
+images {
+  image: "/assets/decorations/kitchen/brown/1x1_KitchenDishWasher_MergedBrown.png"
+}
+images {
+  image: "/assets/decorations/kitchen/dark/1x1_KitchenDishWasher_MergedDark.png"
+}
+images {
+  image: "/assets/decorations/kitchen/green/1x1_KitchenDishWasher_MergedGreen.png"
+}
+images {
+  image: "/assets/decorations/kitchen/grey/1x1_KitchenDishWasher_MergedGrey.png"
+}
+images {
+  image: "/assets/decorations/kitchen/magenta/1x1_KitchenDishWasher_MergedMeganta.png"
+}
+images {
+  image: "/assets/decorations/kitchen/olive/1x1_KitchenDishWasher_MergedOlive.png"
+}
+images {
+  image: "/assets/decorations/kitchen/orange/1x1_KitchenDishWasher_MergedOrange.png"
+}
+images {
+  image: "/assets/decorations/kitchen/pink/1x1_KitchenDishWasher_MergedPink.png"
+}
+images {
+  image: "/assets/decorations/kitchen/purple/1x1_KitchenDishWasher_MergedPurple.png"
+}
+images {
+  image: "/assets/decorations/kitchen/red/1x1_KitchenDishWasher_MergedRed.png"
+}
+images {
+  image: "/assets/decorations/kitchen/sky/1x1_KitchenDishWasher_MergedSky.png"
+}
+images {
+  image: "/assets/decorations/kitchen/white/1x1_KitchenDishWasher_MergedWhite.png"
+}
+images {
+  image: "/assets/decorations/kitchen/olive/1x1_KitchenCookerOff_Olive.png"
+}
+extrude_borders: 2

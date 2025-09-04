@@ -1,0 +1,14 @@
+name: "buildmenu"
+instances {
+  id: "placement"
+  prototype: "/screens/buildmenu/placement.go"
+}
+scale_along_z: 0
+embedded_instances {
+  id: "go"
+  data: "components {\n"
+  "  id: \"monarch\"\n"
+  "  component: \"/screens/buildmenu/buildmenu.gui\"\n"
+  "}\n"
+  ""
+}

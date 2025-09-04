@@ -1,0 +1,21 @@
+local monarch = require "monarch.monarch"
+
+function init(self)
+    msg.post(".", "acquire_input_focus")
+end
+
+function on_input(self, action_id, action)
+    if action_id == hash('touch') then
+        if action.pressed then
+            local resume = gui.get_node('resume')
+            local exit = gui.get_node('exit')
+
+            if gui.pick_node(resume, action.x, action.y) then
+                monarch.hide('pausemenu')
+            elseif gui.pick_node(exit, action.x, action.y) then
+                -- close the game.
+                msg.post('@system:', 'exit', { code = 0 })
+            end
+        end
+    end
+end

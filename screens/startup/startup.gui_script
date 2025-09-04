@@ -1,0 +1,14 @@
+local transitions = require 'monarch.transitions.gui'
+local monarch = require 'monarch.monarch'
+
+function init(self)
+    local transition = transitions.create(gui.get_node('root'))
+    .show_in(transitions.fade_in, gui.EASING_LINEAR, .6, 0)
+    .show_out(transitions.fade_out, gui.EASING_LINEAR, .3, 0)
+
+    monarch.on_transition('startup', transition)
+end
+
+function on_message(self, message_id, message, sender)
+    monarch.on_message(message_id, message, sender)
+end

@@ -1,0 +1,39 @@
+image: "/assets/people/blank/walk.png"
+tile_width: 460
+tile_height: 460
+animations {
+  id: "down"
+  start_tile: 1
+  end_tile: 6
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 14
+}
+animations {
+  id: "down-left"
+  start_tile: 7
+  end_tile: 12
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 14
+}
+animations {
+  id: "left"
+  start_tile: 13
+  end_tile: 18
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 14
+}
+animations {
+  id: "up"
+  start_tile: 25
+  end_tile: 30
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 14
+}
+animations {
+  id: "up-left"
+  start_tile: 19
+  end_tile: 24
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 14
+}
+extrude_borders: 2

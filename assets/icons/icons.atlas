@@ -1,0 +1,19 @@
+images {
+  image: "/assets/icons/coin.png"
+}
+images {
+  image: "/assets/icons/diamond.png"
+}
+images {
+  image: "/assets/icons/money.png"
+}
+images {
+  image: "/assets/icons/background-glass.png"
+}
+images {
+  image: "/assets/icons/confirm.png"
+}
+images {
+  image: "/assets/icons/cancel.png"
+}
+extrude_borders: 2

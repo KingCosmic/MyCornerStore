@@ -1,0 +1,77 @@
+script: "/screens/mainmenu/mainmenu.gui_script"
+fonts {
+  name: "peaberrybase"
+  font: "/assets/fonts/peaberry/peaberrybase.font"
+}
+nodes {
+  type: TYPE_BOX
+  id: "root"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 640.0
+    y: 320.0
+  }
+  size {
+    x: 150.0
+    y: 50.0
+  }
+  type: TYPE_BOX
+  id: "start"
+  parent: "root"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  color {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  type: TYPE_TEXT
+  text: "Start Game"
+  font: "peaberrybase"
+  id: "text"
+  parent: "start"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 258.0
+  }
+  size {
+    x: 150.0
+    y: 50.0
+  }
+  type: TYPE_BOX
+  id: "editor"
+  parent: "root"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  color {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  type: TYPE_TEXT
+  text: "Open Editor"
+  font: "peaberrybase"
+  id: "text1"
+  parent: "editor"
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

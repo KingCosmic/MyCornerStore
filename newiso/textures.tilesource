@@ -1,0 +1,29 @@
+image: "/assets/Textures-16.png"
+tile_width: 16
+tile_height: 16
+animations {
+  id: "dirt"
+  start_tile: 193
+  end_tile: 193
+}
+animations {
+  id: "grass"
+  start_tile: 485
+  end_tile: 485
+}
+animations {
+  id: "sand"
+  start_tile: 195
+  end_tile: 195
+}
+animations {
+  id: "stone"
+  start_tile: 168
+  end_tile: 168
+}
+animations {
+  id: "water"
+  start_tile: 258
+  end_tile: 258
+}
+extrude_borders: 2

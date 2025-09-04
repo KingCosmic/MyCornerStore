@@ -1,0 +1,20 @@
+local monarch = require 'monarch.monarch'
+
+function init(self)
+	msg.post("@render:", "use_fixed_fit_projection", { near = -1, far = 1 })
+	msg.post('#', 'show_startup')
+
+	monarch.add_listener()
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash('show_startup') then
+		monarch.show(hash('startup'))
+	end
+
+	if message_id == monarch.SCREEN_TRANSITION_IN_FINISHED and message.screen == hash('startup') then
+		timer.delay(2, false, function()
+			monarch.show(hash('mainmenu'))
+		end)
+	end
+end

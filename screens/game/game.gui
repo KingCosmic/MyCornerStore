@@ -1,0 +1,7 @@
+script: "/screens/game/game.gui_script"
+fonts {
+  name: "peaberrybase"
+  font: "/assets/fonts/peaberry/peaberrybase.font"
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

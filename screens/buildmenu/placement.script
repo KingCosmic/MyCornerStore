@@ -1,0 +1,257 @@
+-- local camera = require 'orthographic.camera'
+local map = require 'isometric.board'
+local iso = require 'isometric.utils'
+
+-- local PLACEMENT_TYPES = require 'data.placement_types'
+
+local MAP_ID = '/tilemap'
+local CAMERA_ID = hash('/camera')
+
+local factory_url = '/tilemap#decoration_factory'
+
+local offscreen_pos = vmath.vector3(-4000, -4000, 0)
+
+local hidden_scale = vmath.vector3(0, 0, 0)
+local shown_scale = vmath.vector3(1, 1, 1)
+
+local tiles_in_radius = {}
+
+function init(self)
+	self.target_pos = go.get_position()
+	self.map_pos = go.get_position(MAP_ID)
+	self.target_tile = vmath.vector3()
+
+	go.set('#tile', 'scale', hidden_scale)
+	go.set('#decoration', 'scale', hidden_scale)
+
+	self.poi_data = {
+		type = 'floor', -- floor, decoration, wall, wall-decoration
+		sprite = 'blackwhite_BlankFloor_Sides2',
+		rotation = 'n',
+		can_rotate = false
+	}
+
+	self.offset = vmath.vector3(0, 0, 0)
+
+	go.set_position(offscreen_pos)
+end
+
+local function snap_target_position(self)
+	pprint(self.target_pos)
+	local tile_pos = iso.to_grid_coordinates(self.target_pos, true)
+
+	-- TODO: see if we need to make this "clamping" a normal part of the to_grid_coords
+	if tile_pos.x < map.sidewalk_width then
+		tile_pos.x = map.sidewalk_width
+	end
+	if tile_pos.y < map.sidewalk_width then
+		tile_pos.y = map.sidewalk_width
+	end
+	if tile_pos.x > (map.width - 1) then
+		tile_pos.x = map.width - 1
+	end
+	if tile_pos.y > (map.height - 1) then
+		tile_pos.y = map.height - 1
+	end
+
+	local snapped_pos = iso.to_screen_coordinates(tile_pos)
+
+	-- For the dragged/preview object, use a slightly higher z-depth
+	local tile_depth = -(tile_pos.x + tile_pos.y) * 0.01
+
+	if self.poi_data.type == 'floor' then
+		tile_depth = tile_depth + 0.005 -- Slightly in front of the existing tile
+	end
+
+	local new_pos = self.map_pos + snapped_pos
+	new_pos.z = tile_depth
+
+	return tile_pos, new_pos
+end
+
+local function hide_radius(self)
+	if #tiles_in_radius > 0 then
+		for i = 1, #tiles_in_radius, 1 do
+			local tile = tiles_in_radius[i]
+			go.set(msg.url(nil, tile.tile_id, 'sprite'), 'tint', vmath.vector4(1, 1, 1, 1))
+		end
+	end
+end
+
+local function highlight_radius(self)
+	hide_radius(self)
+
+	-- local radius = self.poi_data.radius
+	tiles_in_radius = map.get_tiles_in_radius(self.tile_pos, 1)
+
+	if #tiles_in_radius > 0 then
+		for i = 1, #tiles_in_radius, 1 do
+			local tile = tiles_in_radius[i]
+			go.set(msg.url(nil, tile.tile_id, 'sprite'), 'tint', vmath.vector4(0, 1, 0, 1))
+		end
+	end
+end
+
+local function confirm_placement(self)
+	local tile_pos = iso.to_grid_coordinates(self.target_pos, true)
+
+	local type = self.poi_data.placement
+	local texture = self.poi_data.texture
+
+	if type == PLACEMENT_TYPES.TILE then
+		local tile_id = map.change_tile_sprite(tile_pos.x, tile_pos.y, texture)
+		sprite.play_flipbook(msg.url(nil, tile_id, 'sprite'), texture)
+
+		local next_tile = map.move_to_adjacent_different_tile(tile_pos)
+		local next_world_pos = iso.to_screen_cordinates(next_tile)
+
+		self.target_pos = next_world_pos
+		local new_tile_pos, snapped_pos = snap_target_position(self)
+		if self.tile_pos == new_tile_pos then
+			highlight_radius(self)
+		end
+		go.set_position(snapped_pos)
+		self.tile_pos = new_tile_pos
+	elseif type == PLACEMENT_TYPES.POI then
+		local deco = map.get_decoration(tile_pos.x, tile_pos.y)
+
+		local go_id = deco.go_id
+
+		if go_id == '' then
+			local _, new_pos = snap_target_position(self)
+			go_id = factory.create(factory_url, new_pos)
+		end
+
+		local index = map.getIndex(tile_pos.x, tile_pos.y)
+		map.decorations[index] = {
+			category = 'none',
+			texture = texture,
+			go_id = go_id
+		}
+
+		sprite.play_flipbook(msg.url(nil, go_id, 'sprite'), texture)
+	end
+
+	if type ~= PLACEMENT_TYPES.TILE then
+		hide_radius(self)
+		go.set_position(offscreen_pos)
+
+		-- TODO: We should rebuild collision and POI systems here.
+		-- map.update_collision(tile, collision)
+	end
+end
+
+function update(self, dt)
+	if not self.drag then
+		return
+	end
+
+	local new_tile_pos, snapped_pos = snap_target_position(self)
+	if self.tile_pos == new_tile_pos then
+		highlight_radius(self)
+	end
+	go.set_position(snapped_pos)
+
+	self.tile_pos = new_tile_pos
+end
+
+local function update_visuals(self, poi_data)
+	local old_data = self.poi_data
+	local old_placement = old_data.placement
+
+	if old_placement == PLACEMENT_TYPES.TILE then
+		go.set('#tile', 'scale', hidden_scale)
+	elseif old_placement == PLACEMENT_TYPES.POI then
+		go.set('#decoration', 'scale', hidden_scale)
+	end
+
+	local new_placement = poi_data.placement
+	if new_placement == PLACEMENT_TYPES.TILE then
+		go.set('#tile', 'scale', shown_scale)
+		sprite.play_flipbook('#tile', poi_data.texture)
+	elseif new_placement == PLACEMENT_TYPES.POI then
+		go.set('#decoration', 'scale', shown_scale)
+		sprite.play_flipbook('#decoration', poi_data.texture)
+	end
+
+	self.poi_data = poi_data
+end
+
+local PLACEMENT_BUFFER = 110;
+local function was_clicked(pos, mouse_pos)
+	if mouse_pos.x > (pos.x - PLACEMENT_BUFFER) and mouse_pos.x < (pos.x + PLACEMENT_BUFFER) then
+		if mouse_pos.y > (pos.y - PLACEMENT_BUFFER) and mouse_pos.y < (pos.y + PLACEMENT_BUFFER) then
+			return true
+		end
+	end
+
+	return false
+end
+
+function on_input(self, action_id, action)
+	local mouse_pos = camera.screen_to_world(CAMERA_ID, vmath.vector3(action.x, action.y, 0));
+
+	if action_id == hash('touch') then
+		-- check if we're clicking on our placement object.
+		local placement_go = go.get_position()
+
+		local drag_offset = vmath.vector3(0, 171, 0)
+		if was_clicked(placement_go + drag_offset, mouse_pos) then
+			if action.pressed then
+				self.drag = true
+				return true
+			end
+		end
+		if action.released and self.drag then
+			self.drag = false
+			return true
+		end
+
+		local confirm_offset = vmath.vector3(250, 350, 0)
+		if was_clicked(placement_go + confirm_offset, mouse_pos) then
+			if action.pressed and not self.confirming then
+				self.confirming = true
+				return true
+			end
+			if action.released and self.confirming then
+				self.confirming = false
+				confirm_placement(self)
+				return true
+			end
+		end
+
+		local cancel_offset = vmath.vector3(-250, 350, 0)
+		if was_clicked(placement_go + cancel_offset, mouse_pos) then
+			if action.pressed and not self.canceling then
+				self.canceling = true
+				return true
+			end
+			if action.released and self.canceling then
+				self.canceling = false
+				msg.post('/hud#shop', hash('disable'))
+				msg.post('/hud#main', hash('enable'))
+				go.set_position(offscreen_pos)
+				return true
+			end
+		end
+	end
+
+	if self.drag then
+		self.target_pos = mouse_pos
+		return true
+	end
+end
+
+function on_message(self, message_id, message)
+	if message_id == hash('ready') then
+		msg.post('.', 'acquire_input_focus')
+	elseif message_id == hash('start_edit') then
+		update_visuals(self, message.poi_data)
+		self.target_pos = go.get_position(CAMERA_ID)
+
+		local new_tile_pos, snapped_pos = snap_target_position(self)
+		self.tile_pos = new_tile_pos
+		highlight_radius(self)
+		go.set_position(snapped_pos)
+	end
+end

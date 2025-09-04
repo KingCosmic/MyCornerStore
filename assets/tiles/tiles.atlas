@@ -1,0 +1,363 @@
+images {
+  image: "/assets/tiles/images/blackwhite_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blackwhite_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/blue_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown1_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/brown2_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/dark_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/funky_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/green_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/grey_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/light_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/lime_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/red_WoodFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_BlankFloor_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_Carpet_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_CheckeredFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_CheckeredFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_Pattern1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_Pattern2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_Pattern3_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_StripedFloor1_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_StripedFloor2_Sides2.png"
+}
+images {
+  image: "/assets/tiles/images/yellow_WoodFloor_Sides2.png"
+}
+extrude_borders: 2
+max_page_width: 0
+max_page_height: 0

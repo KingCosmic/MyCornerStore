@@ -1,0 +1,77 @@
+script: "/screens/pausemenu/pausemenu.gui_script"
+fonts {
+  name: "peaberrybase"
+  font: "/assets/fonts/peaberry/peaberrybase.font"
+}
+nodes {
+  type: TYPE_BOX
+  id: "root"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 640.0
+    y: 557.0
+  }
+  size {
+    x: 150.0
+    y: 50.0
+  }
+  color {
+    x: 0.302
+    y: 0.0
+    z: 0.102
+  }
+  type: TYPE_BOX
+  id: "resume"
+  parent: "root"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  size {
+    x: 150.0
+    y: 50.0
+  }
+  type: TYPE_TEXT
+  text: "Resume"
+  font: "peaberrybase"
+  id: "text"
+  parent: "resume"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+    y: 349.0
+  }
+  size {
+    x: 150.0
+    y: 50.0
+  }
+  color {
+    x: 0.302
+    y: 0.0
+    z: 0.102
+  }
+  type: TYPE_BOX
+  id: "exit"
+  parent: "root"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "Exit Game"
+  font: "peaberrybase"
+  id: "text1"
+  parent: "exit"
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT
