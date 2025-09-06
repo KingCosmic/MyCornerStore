@@ -9,7 +9,7 @@ dependencies#3 = https://github.com/whiteboxdev/library-defold-rendy/archive/mai
 
 [bootstrap]
 main_collection = /main/main.collectionc
-render = /rendy/rendy.renderc
+render = /mcs.renderc
 
 [input]
 game_binding = /input/game.input_bindingc

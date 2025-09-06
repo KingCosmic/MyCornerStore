@@ -12,34 +12,34 @@ M.chunk_height = 16
 ]]--
 M.chunks = {}
 
-function M.get_chunk_key(x, y)
-	return x .. ',' .. y
+function M.get_chunk_key(x, z)
+	return x .. ',' .. z
 end
 
 function M.get_tile(chunk, tile_x, tile_y, tile_z)
-	if chunk.layers[tile_z] then
-		return chunk.layers[tile_z][tile_y][tile_x]
+	if chunk.layers[tile_y] then
+		return chunk.layers[tile_y][tile_z][tile_x]
 	end
 end
 
-function M.create_chunk(x, y)
+function M.create_chunk(x, z)
 	local chunk = {}
 
 	chunk.heights = {}
 	chunk.tiles = {}
 	chunk.x = x
-	chunk.y = y
+	chunk.z = z
 	chunk.dirty = false
 
 	chunk.layers = {}
 
-	for z = 1, 4 do
-		chunk.layers[z] = {}
+	for y = 1, 4 do
+		chunk.layers[y] = {}
 		for h = 1, M.chunk_height do
-			chunk.layers[z][h] = {}
+			chunk.layers[y][h] = {}
 			for w = 1, M.chunk_width do
 				
-				local tile = (z == 1) and 1 or 0
+				local tile = (y == 1) and 1 or 0
 
 				if h == 1 and w == 1 then
 					tile = 130
@@ -51,44 +51,35 @@ function M.create_chunk(x, y)
 					tile = 130
 				end
 
-				chunk.layers[z][h][w] = tile
+				chunk.layers[y][h][w] = tile
 			end
 		end
 	end
 
-	-- for h = 1, M.chunk_height do
-	-- 	chunk.tiles[h] = {}
-	-- 	chunk.heights[h] = {}
-	-- 	for w = 1, M.chunk_width do
-	-- 		chunk.tiles[h][w] = 1
-	-- 		chunk.heights[h][w] = 0
-	-- 	end
-	-- end
-
-	M.chunks[M.get_chunk_key(x, y)] = chunk
+	M.chunks[M.get_chunk_key(x, z)] = chunk
 
 	return chunk
 end
 
-function M.get_chunk(x, y)
-	local chunk = M.chunks[M.get_chunk_key(x, y)]
+function M.get_chunk(x, z)
+	local chunk = M.chunks[M.get_chunk_key(x, z)]
 
 	if chunk then
 		return chunk
 	end
 
 	-- if we're here, a chunk for this x and y doesn't exist.
-	return M.create_chunk(x, y)
+	return M.create_chunk(x, z)
 end
 
-function M.fill_layer(chunk, z)
-	chunk.layers[z] = {}
+function M.fill_layer(chunk, y)
+	chunk.layers[y] = {}
 
-	for y = 1, M.chunk_height do
-		chunk.layers[z][y] = {}
+	for z = 1, M.chunk_height do
+		chunk.layers[y][z] = {}
 		
 		for x = 1, M.chunk_width do
-			chunk.layers[z][y][x] = 0
+			chunk.layers[y][z][x] = 0
 		end
 	end
 end
@@ -96,27 +87,27 @@ end
 function M.erase_tile(chunk_x, chunk_y, x, y, z)
 	local chunk = M.get_chunk(chunk_x, chunk_y)
 
-	local target_height = z + 1
+	local target_height = y + 1
 
 	-- if this layer doesn't exist we shouldn't need to erase anything
 	if not chunk.layers[target_height] then
 		M.fill_layer(chunk, target_height)
 	end
 
-	chunk.layers[target_height][y][x] = 0
+	chunk.layers[target_height][z][x] = 0
 end
 
-function M.place_tile(chunk_x, chunk_y, x, y, z, tile_id)
-	local chunk = M.get_chunk(chunk_x, chunk_y)
+function M.place_tile(chunk_x, chunk_z, x, y, z, tile_id)
+	local chunk = M.get_chunk(chunk_x, chunk_z)
 
-	local target_height = z + 1
+	local target_height = y + 1
 
 	-- if this layer doesn't exist we should make an empty one.
 	if not chunk.layers[target_height] then
 		M.fill_layer(chunk, target_height)
 	end
 
-	chunk.layers[target_height][y][x] = tile_id
+	chunk.layers[target_height][z][x] = tile_id
 end
 
 return M

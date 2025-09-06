@@ -57,28 +57,32 @@ instances {
   children: "rendy"
   position {
     x: 128.0
-    y: 128.0
-    z: 2.0
+    y: 2.0
+    z: 128.0
   }
 }
 instances {
   id: "rendy"
   prototype: "/rendy/rendy.go"
   position {
-    x: 20.0
-    y: -20.0
+    y: 20.0
   }
   rotation {
-    x: 0.35355338
-    y: 0.14644662
-    z: 0.35355338
-    w: 0.8535534
+    x: -0.14530851
+    y: 0.8506208
+    z: 0.4046261
+    w: 0.3026671
   }
   component_properties {
     id: "script"
     properties {
       id: "orthographic"
       value: "true"
+      type: PROPERTY_TYPE_BOOLEAN
+    }
+    properties {
+      id: "experimental_controls"
+      value: "false"
       type: PROPERTY_TYPE_BOOLEAN
     }
     properties {

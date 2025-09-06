@@ -47,13 +47,13 @@ local MAX_SPEED = 32
 -- Movement vectors for different input combinations
 local MOVEMENT_VECTORS = {
 	-- Cardinal directions move straight on screen
-	UP = vmath.vector3(-1, 1, 0),        -- Straight up
-	DOWN = vmath.vector3(1, -1, 0),     -- Straight down
-	LEFT = vmath.vector3(-1, -1, 0),     -- Straight left
-	RIGHT = vmath.vector3(1, 1, 0),     -- Straight right
+	UP = vmath.vector3(-1, 0, 1),        -- Straight up
+	DOWN = vmath.vector3(1, 0, -1),     -- Straight down
+	LEFT = vmath.vector3(-1, 0, -1),     -- Straight left
+	RIGHT = vmath.vector3(1, 0, 1),     -- Straight right
 	UP_LEFT = vmath.vector3(-1, 0, 0),    -- Up Left
-	UP_RIGHT = vmath.vector3(0, 1, 0),    -- Up Right
-	DOWN_LEFT = vmath.vector3(0, -1, 0), -- Down Left
+	UP_RIGHT = vmath.vector3(0, 0, 1),    -- Up Right
+	DOWN_LEFT = vmath.vector3(0, 0, -1), -- Down Left
 	DOWN_RIGHT = vmath.vector3(1, 0, 0)  -- Down right
 }
 
@@ -102,20 +102,20 @@ local function create_quad(width, height, frame, tpr, tpc)
 	local uv = get_frame_uv(frame, tpr, tpc)
 
 	-- Define corners (clockwise)
-	local bl_x, bl_y = 0, 0
-	local br_x, br_y = width, 0
-	local tl_x, tl_y = 0, 0
-	local tr_x, tr_y = width, 0
+	local bl_x, bl_z = 0, 0
+	local br_x, br_z = width, 0
+	local tl_x, tl_z = 0, 0
+	local tr_x, tr_z = width, 0
 
 	-- Triangle 1
-	push_vertex(bl_x, bl_y, 0, uv.u1, uv.v1)
-	push_vertex(br_x, br_y, 0, uv.u2, uv.v1)
-	push_vertex(tl_x, tl_y, height, uv.u1, uv.v2)
+	push_vertex(bl_x, 0, bl_z, uv.u1, uv.v1)
+	push_vertex(br_x, 0, br_z, uv.u2, uv.v1)
+	push_vertex(tl_x, height, tl_z, uv.u1, uv.v2)
 
 	-- Triangle 2
-	push_vertex(tl_x, tl_y, height, uv.u1, uv.v2)
-	push_vertex(br_x, br_y, 0, uv.u2, uv.v1)
-	push_vertex(tr_x, tr_y, height, uv.u2, uv.v2)
+	push_vertex(tl_x,height, tl_z, uv.u1, uv.v2)
+	push_vertex(br_x, 0, br_z, uv.u2, uv.v1)
+	push_vertex(tr_x, height, tr_z, uv.u2, uv.v2)
 end
 
 function init(self)
@@ -184,10 +184,10 @@ function update(self, dt)
 		end
 
 		-- Normalize movement to ensure consistent speed
-		local target = vmath.vector3(0, 0, pos.z)
+		local target = vmath.vector3(0, pos.y, 0)
 		local normalized_movement = vmath.normalize(movement_vector)
 		target.x = pos.x + (normalized_movement.x * MAX_SPEED * dt)
-		target.y = pos.y + (normalized_movement.y * MAX_SPEED * dt)
+		target.z = pos.z + (normalized_movement.z * MAX_SPEED * dt)
 
 		local player = {
 			x = pos.x,

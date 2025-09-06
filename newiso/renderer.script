@@ -16,7 +16,7 @@ go.property('bl_buffer', resource.buffer('/newiso/buffers/bl.buffer'))
 go.property('bm_buffer', resource.buffer('/newiso/buffers/bm.buffer'))
 go.property('br_buffer', resource.buffer('/newiso/buffers/br.buffer'))
 
--- id, x, y
+-- id, x, z
 local meshes = {}
 
 local function calculate_normals(vertices)
@@ -57,23 +57,23 @@ local function update_mesh(chunk)
 	chunk.colors = {}
 
 	-- start at the top of our chunk and move down
-	for z = #chunk.layers, 1, -1 do
-		for y = 1, world.chunk_height do
+	for y = #chunk.layers, 1, -1 do
+		for z = 1, world.chunk_height do
 			for x = 1, world.chunk_width do
 				utils.add_terrain_quad(chunk, x, y, z)
 			end
 		end
 	end
 
-	chunk.normals = calculate_normals(chunk.vertices)
+	-- chunk.normals = calculate_normals(chunk.vertices)
 end
 
 local function render_chunk(chunk, mesh)
 	mesh.x = chunk.x
-	mesh.y = chunk.y
+	mesh.z = chunk.z
 	mesh.active = true
 
-	go.set_position(vmath.vector3(mesh.x * utils.TILE_WIDTH * world.chunk_width, mesh.y * utils.TILE_HEIGHT * world.chunk_height, 0), mesh.id)
+	go.set_position(vmath.vector3(mesh.x * utils.TILE_WIDTH * world.chunk_width, 0, mesh.z * utils.TILE_HEIGHT * world.chunk_height), mesh.id)
 
 	update_mesh(chunk)
 
@@ -88,7 +88,7 @@ local function create_mesh(buffer, light)
 	
 	local mesh = {
 		x = 0,
-		y = 0,
+		z = 0,
 		active = false,
 		buffer,
 		id = id
@@ -116,20 +116,20 @@ function init(self)
 	msg.post('.', 'acquire_input_focus')
 end
 
-function on_input(self, action_id, action)
-	-- move directional light based on input
-	local w, h = window.get_size()
-
-	local halfwidth = w * 0.5
-	local halfheight = h * 0.5
-
-	self.light.x = 2 * ((action.x - halfwidth) / halfwidth)
-	self.light.y = 2 * ((action.y - halfheight) / halfheight)
-
-	for i = 0, #meshes do
-		go.set(msg.url(nil, meshes[i].id, 'mesh'), 'light', self.light)
-	end
-end
+-- function on_input(self, action_id, action)
+-- 	-- move directional light based on input
+-- 	local w, h = window.get_size()
+-- 
+-- 	local halfwidth = w * 0.5
+-- 	local halfheight = h * 0.5
+-- 
+-- 	self.light.x = 2 * ((action.x - halfwidth) / halfwidth)
+-- 	self.light.y = 2 * ((action.y - halfheight) / halfheight)
+-- 
+-- 	for i = 0, #meshes do
+-- 		go.set(msg.url(nil, meshes[i].id, 'mesh'), 'light', self.light)
+-- 	end
+-- end
 
 local function get_free_mesh()
 	for m = 1, #meshes do
@@ -145,12 +145,12 @@ end
 
 function update(self, dt)
 	local pos = go.get_position('/rendy')
-	local current_chunks = utils.get_chunks_in_radius(pos.x, pos.y, 1)
+	local current_chunks = utils.get_chunks_in_radius(pos.x, pos.z, 1)
 
 	local active_mesh_keys = {}
 	for m = 1, #meshes do
 		local mesh = meshes[m]
-		local key = utils.get_chunk_key(mesh.x, mesh.y)
+		local key = utils.get_chunk_key(mesh.x, mesh.z)
 		if not current_chunks[key] then
 			mesh.active = false
 		else
@@ -163,7 +163,7 @@ function update(self, dt)
 			local mesh = get_free_mesh()
 
 			if mesh then
-				local chunk = world.get_chunk(c_pos.x, c_pos.y)
+				local chunk = world.get_chunk(c_pos.x, c_pos.z)
 				render_chunk(chunk, mesh)
 			end
 		end
@@ -175,8 +175,8 @@ function on_message(self, message_id, message)
 		for m = 1, #meshes do
 			local mesh = meshes[m]
 
-			if mesh.x == message.x and mesh.y == message.y then
-				local chunk = world.get_chunk(message.x, message.y)
+			if mesh.x == message.x and mesh.z == message.z then
+				local chunk = world.get_chunk(message.x, message.z)
 				render_chunk(chunk, mesh)
 			end
 		end

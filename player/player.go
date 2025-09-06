@@ -25,12 +25,7 @@ embedded_components {
   "}\n"
   ""
   position {
-    x: -10.0
-    y: 10.0
-  }
-  rotation {
-    z: 0.38268343
-    w: 0.9238795
+    y: 20.0
   }
   scale {
     x: 0.1

@@ -107,8 +107,8 @@ local function push_vertex(chunk, x, y, z, u, v)
 end
 
 function M.add_terrain_quad(chunk, grid_x, grid_y, grid_z)
-	local height = grid_z
-	local tile_id = chunk.layers[grid_z][grid_y][grid_x]
+	local height = grid_y
+	local tile_id = chunk.layers[grid_y][grid_z][grid_x]
 
 	-- tile_id 0 represents air
 	if tile_id == 0 then
@@ -116,41 +116,50 @@ function M.add_terrain_quad(chunk, grid_x, grid_y, grid_z)
 	end
 
 	local uv = M.get_tile_uv(tile_id)
-	local z_depth = height * M.TILE_HEIGHT
+	local depth = height * M.TILE_HEIGHT
 
 	-- Convert grid coordinates to world space
 	local iso_x = grid_x * M.TILE_WIDTH
-	local iso_y = grid_y * M.TILE_HEIGHT
+	local iso_z = grid_z * M.TILE_HEIGHT
 
 	-- Define corners (clockwise)
-	local bl_x, bl_y = iso_x, iso_y
-	local br_x, br_y = iso_x + M.TILE_WIDTH, iso_y
-	local tl_x, tl_y = iso_x, iso_y + M.TILE_HEIGHT
-	local tr_x, tr_y = iso_x + M.TILE_WIDTH, iso_y + M.TILE_HEIGHT
+	local bl_x, bl_z = iso_x, iso_z
+	local br_x, br_z = iso_x + M.TILE_WIDTH, iso_z
+	local tl_x, tl_z = iso_x, iso_z + M.TILE_HEIGHT
+	local tr_x, tr_z = iso_x + M.TILE_WIDTH, iso_z + M.TILE_HEIGHT
 
 	-- check for a tile directly above us
 	-- if one exists don't render our top face
-	local above_z = grid_z + 1
-	local covering_tile = chunk.layers[above_z] and chunk.layers[above_z][grid_y][grid_x]
+	local above_y = grid_y + 1
+	local covering_tile = chunk.layers[above_y] and chunk.layers[above_y][grid_z][grid_x]
 
 	-- if tile doesn't exist or it's air we can render.
 	if not covering_tile or covering_tile == 0 then
-		-- Triangle 1
-		push_vertex(chunk, bl_x, bl_y, z_depth, uv.u1, uv.v1)
-		push_vertex(chunk, br_x, br_y, z_depth, uv.u2, uv.v1)
-		push_vertex(chunk, tl_x, tl_y, z_depth, uv.u1, uv.v2)
+-- 		-- Triangle 1
+-- 		push_vertex(chunk, bl_x, depth, bl_z, uv.u1, uv.v1)
+-- 		push_vertex(chunk, br_x, depth, br_z, uv.u2, uv.v1)
+-- 		push_vertex(chunk, tl_x, depth, tl_z, uv.u1, uv.v2)
+-- 
+-- 		-- Triangle 2
+-- 		push_vertex(chunk, tl_x, depth, tl_z, uv.u1, uv.v2)
+-- 		push_vertex(chunk, br_x, depth, br_z, uv.u2, uv.v1)
+-- 		push_vertex(chunk, tr_x, depth, tr_z, uv.u2, uv.v2)
 
-		-- Triangle 2
-		push_vertex(chunk, tl_x, tl_y, z_depth, uv.u1, uv.v2)
-		push_vertex(chunk, br_x, br_y, z_depth, uv.u2, uv.v1)
-		push_vertex(chunk, tr_x, tr_y, z_depth, uv.u2, uv.v2)
+		-- Triangle 1 (reversed)
+		push_vertex(chunk, bl_x, depth, bl_z, uv.u1, uv.v1)
+		push_vertex(chunk, tl_x, depth, tl_z, uv.u1, uv.v2)
+		push_vertex(chunk, br_x, depth, br_z, uv.u2, uv.v1)
+		-- Triangle 2 (reversed)
+		push_vertex(chunk, tl_x, depth, tl_z, uv.u1, uv.v2)
+		push_vertex(chunk, tr_x, depth, tr_z, uv.u2, uv.v2)
+		push_vertex(chunk, br_x, depth, br_z, uv.u2, uv.v1)
 	end
 
 	-- add possible cliff faces
-	M.add_cliff_faces(chunk, grid_x, grid_y, grid_z, z_depth, uv)
+	M.add_cliff_faces(chunk, grid_x, grid_y, grid_z, depth, uv)
 end
 
-function M.add_cliff_faces(chunk, grid_x, grid_y, grid_z, z_depth, uv)
+function M.add_cliff_faces(chunk, grid_x, grid_y, grid_z, depth, uv)
 	-- Check adjacent tiles and add vertical faces where there's a drop
 	local directions = {
 		{ 0,  1, "N" },  -- North
@@ -161,25 +170,25 @@ function M.add_cliff_faces(chunk, grid_x, grid_y, grid_z, z_depth, uv)
 
 	for _, dir in ipairs(directions) do
 		local adj_x = grid_x + dir[1]
-		local adj_y = grid_y + dir[2]
+		local adj_z = grid_z + dir[2]
 
 		local adj_tile
-		if M.is_within_chunk(adj_x, adj_y) then
-			adj_tile = chunk.layers[grid_z][adj_y][adj_x]
+		if M.is_within_chunk(adj_x, adj_z) then
+			adj_tile = chunk.layers[grid_y][adj_z][adj_x]
 		end
 
 		-- we only render cliff faces for "open" sides.
 		-- no point for rendering hidden geometry.
 		if adj_tile == 0 then
-			M.add_cliff_face(chunk, grid_x, grid_y, grid_z, dir[3], grid_z * M.TILE_HEIGHT, uv)
+			M.add_cliff_face(chunk, grid_x, grid_y, grid_z, dir[3], grid_y * M.TILE_HEIGHT, uv)
 		end
 	end
 end
 
-function M.add_cliff_face(chunk, grid_x, grid_y, grid_z, dir, z_depth, uv)
+function M.add_cliff_face(chunk, grid_x, grid_y, grid_z, dir, depth, uv)
 	-- World position of tile center
 	local world_x = grid_x * M.TILE_WIDTH
-	local world_y = grid_y * M.TILE_HEIGHT
+	local world_z = grid_z * M.TILE_HEIGHT
 
 	local hw = M.TILE_WIDTH 
 	local hh = M.TILE_HEIGHT
@@ -190,58 +199,68 @@ function M.add_cliff_face(chunk, grid_x, grid_y, grid_z, dir, z_depth, uv)
 	if dir == 'N' then
 		verts = {
 			-- bottom left
-			{ world_x, world_y + hh, z_depth - hdrop },
+			{ world_x, depth - hdrop, world_z + hh, },
 			-- top left  
-			{ world_x, world_y + hh, z_depth },
+			{ world_x, depth, world_z + hh },
 			-- bottom right
-			{ world_x + hw, world_y + hh, z_depth - hdrop },
+			{ world_x + hw, depth - hdrop, world_z + hh },
 			-- top right
-			{ world_x + hw, world_y + hh, z_depth }
+			{ world_x + hw, depth, world_z + hh }
 		}
 	elseif dir == 'E' then
 		verts = {
 			-- bottom left
-			{ world_x + hw, world_y, z_depth - hdrop },
+			{ world_x + hw, depth - hdrop, world_z },
 			-- bottom right  
-			{ world_x + hw, world_y + hh, z_depth - hdrop },
+			{ world_x + hw, depth - hdrop, world_z + hh },
 			-- top left
-			{ world_x + hw, world_y, z_depth },
+			{ world_x + hw, depth, world_z },
 			-- top right
-			{ world_x + hw, world_y + hh, z_depth },
+			{ world_x + hw, depth, world_z + hh }
 		}
 	elseif dir == 'S' then
 		verts = {
 			-- bottom left
-			{ world_x, world_y, z_depth - hdrop },
+			{ world_x, depth - hdrop, world_z },
 			-- bottom right
-			{ world_x + hw, world_y, z_depth - hdrop },
+			{ world_x + hw, depth - hdrop, world_z },
 			-- top left
-			{ world_x, world_y, z_depth },
+			{ world_x, depth, world_z },
 			-- top right
-			{ world_x + hw, world_y, z_depth }
+			{ world_x + hw, depth, world_z }
 		}
 	elseif dir == 'W' then
 		verts = {
 			-- bottom left
-			{ world_x, world_y + hh, z_depth - hdrop },
+			{ world_x, depth - hdrop, world_z + hh },
 			-- bottom right
-			{ world_x, world_y, z_depth - hdrop },
+			{ world_x, depth - hdrop, world_z },
 			-- top left
-			{ world_x, world_y + hh, z_depth },
+			{ world_x, depth, world_z + hh },
 			-- top right
-			{ world_x, world_y, z_depth }
+			{ world_x, depth, world_z }
 		}
 	end
 
-	-- Triangle 1
-	push_vertex(chunk, verts[1][1], verts[1][2], verts[1][3], uv.u1, uv.v1)
-	push_vertex(chunk, verts[2][1], verts[2][2], verts[2][3], uv.u2, uv.v1)
-	push_vertex(chunk, verts[3][1], verts[3][2], verts[3][3], uv.u1, uv.v2)
+-- 	-- Triangle 1
+-- 	push_vertex(chunk, verts[1][1], verts[1][2], verts[1][3], uv.u1, uv.v1)
+-- 	push_vertex(chunk, verts[2][1], verts[2][2], verts[2][3], uv.u2, uv.v1)
+-- 	push_vertex(chunk, verts[3][1], verts[3][2], verts[3][3], uv.u1, uv.v2)
+-- 
+-- 	-- Triangle 2
+-- 	push_vertex(chunk, verts[3][1], verts[3][2], verts[3][3], uv.u1, uv.v2)
+-- 	push_vertex(chunk, verts[2][1], verts[2][2], verts[2][3], uv.u2, uv.v1)
+-- 	push_vertex(chunk, verts[4][1], verts[4][2], verts[4][3], uv.u2, uv.v2)
 
-	-- Triangle 2
-	push_vertex(chunk, verts[3][1], verts[3][2], verts[3][3], uv.u1, uv.v2)
-	push_vertex(chunk, verts[2][1], verts[2][2], verts[2][3], uv.u2, uv.v1)
-	push_vertex(chunk, verts[4][1], verts[4][2], verts[4][3], uv.u2, uv.v2)
+-- Triangle 1 (reversed winding)
+push_vertex(chunk, verts[1][1], verts[1][2], verts[1][3], uv.u1, uv.v1)
+push_vertex(chunk, verts[3][1], verts[3][2], verts[3][3], uv.u1, uv.v2)
+push_vertex(chunk, verts[2][1], verts[2][2], verts[2][3], uv.u2, uv.v1)
+
+-- Triangle 2 (reversed winding)
+push_vertex(chunk, verts[3][1], verts[3][2], verts[3][3], uv.u1, uv.v2)
+push_vertex(chunk, verts[4][1], verts[4][2], verts[4][3], uv.u2, uv.v2)
+push_vertex(chunk, verts[2][1], verts[2][2], verts[2][3], uv.u2, uv.v1)
 end
 
 -- Animal Crossing style terrain editing
@@ -275,7 +294,7 @@ function M.get_height_at(world_x, world_y)
 end
 
 -- Convert world coordinates to chunk coordinates
-function M.world_to_chunk(world_x, world_y)
+function M.world_to_chunk(world_x, world_z)
 	local chunk_width_pixels = world.chunk_width * M.TILE_WIDTH
 	local chunk_height_pixels = world.chunk_height * M.TILE_HEIGHT
 
@@ -290,9 +309,9 @@ function M.world_to_chunk(world_x, world_y)
 	end
 
 	local chunk_world_x = floor_div(world_x, chunk_width_pixels)
-	local chunk_world_y = floor_div(world_y, chunk_height_pixels)
+	local chunk_world_z = floor_div(world_z, chunk_height_pixels)
 
-	return chunk_world_x, chunk_world_y
+	return chunk_world_x, chunk_world_z
 end
 
 
@@ -304,19 +323,19 @@ function M.world_to_tile(world_x, world_y, world_z, offset)
 	local local_z = world_z - offset.z
 
 	-- Get which chunk we're in
-	local chunk_x, chunk_y = M.world_to_chunk(local_x, local_y)
+	local chunk_x, chunk_z = M.world_to_chunk(local_x, local_z)
 
 	-- Calculate the chunk's world position
 	local chunk_world_x = chunk_x * world.chunk_width * M.TILE_WIDTH
-	local chunk_world_y = chunk_y * world.chunk_height * M.TILE_HEIGHT
+	local chunk_world_z = chunk_z * world.chunk_height * M.TILE_HEIGHT
 
 	-- Get local position within the chunk
 	local chunk_local_x = local_x - chunk_world_x
-	local chunk_local_y = local_y - chunk_world_y
+	local chunk_local_z = local_z - chunk_world_z
 
 	-- Convert to tile coordinates within the chunk (1-16)
 	local tile_x = math.floor(chunk_local_x / M.TILE_WIDTH)
-	local tile_y = math.floor(chunk_local_y / M.TILE_HEIGHT)
+	local tile_y = math.floor(chunk_local_z / M.TILE_HEIGHT)
 	local tile_z = math.floor(local_z / M.TILE_HEIGHT)
 
 	-- Clamp to chunk bounds
@@ -327,16 +346,16 @@ function M.world_to_tile(world_x, world_y, world_z, offset)
 		tile_x = math.max(1, math.min(world.chunk_width, tile_x))
 	end
 
-	if tile_y == 0 then
-		chunk_y = chunk_y - 1
-		tile_y = world.chunk_height
+	if tile_z == 0 then
+		chunk_z = chunk_z - 1
+		tile_z = world.chunk_height
 	else
-		tile_y = math.max(1, math.min(world.chunk_height, tile_y))
+		tile_z = math.max(1, math.min(world.chunk_height, tile_z))
 	end
 
 	tile_z = math.max(1, tile_z)
 
-	return tile_x, tile_y, tile_z, chunk_x, chunk_y
+	return tile_x, tile_y, tile_z, chunk_x, chunk_z
 end
 
 -- Check if a world position has an active chunk
@@ -368,17 +387,17 @@ function M.chunk_to_world(chunk_x, chunk_y)
 end
 
 -- Get all chunk coordinates within a radius of a world position
-function M.get_chunks_in_radius(center_world_x, center_world_y, radius_chunks)
+function M.get_chunks_in_radius(center_world_x, center_world_z, radius_chunks)
 	radius_chunks = radius_chunks or 2 -- Load chunks within 2 chunk radius
 
-	local center_chunk_x, center_chunk_y = M.world_to_chunk(center_world_x, center_world_y)
+	local center_chunk_x, center_chunk_z = M.world_to_chunk(center_world_x, center_world_z)
 	local chunks = {}
 
 	for dx = -radius_chunks, radius_chunks do
-		for dy = -radius_chunks, radius_chunks do
+		for dz = -radius_chunks, radius_chunks do
 			local chunk_x = center_chunk_x + dx
-			local chunk_y = center_chunk_y + dy
-			table.insert(chunks, { x = chunk_x, y = chunk_y })
+			local chunk_z = center_chunk_z + dz
+			table.insert(chunks, { x = chunk_x, z = chunk_z })
 		end
 	end
 
