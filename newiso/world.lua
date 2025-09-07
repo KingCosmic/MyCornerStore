@@ -51,7 +51,7 @@ function M.create_chunk(x, z)
 				end
 
 				-- we only create data for 0, 0 by default.
-				if not (x == 0 and z == 0) then
+				if x ~= 0 or z ~= 0 then
 					tile = 0
 				end
 

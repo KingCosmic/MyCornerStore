@@ -1,5 +1,6 @@
 local collision = require 'collision.tile_collision'
 local world = require 'newiso.world'
+local utils = require 'newiso.utils'
 
 go.property('idle', resource.tile_source('/assets/people/blank/blank_idle.tilesource'))
 go.property('walk', resource.tile_source('/assets/people/blank/blank_walk.tilesource'))
@@ -66,12 +67,7 @@ function init(self)
 	self.last_texture = 'idle'
 	self.last_flipped = false
 
-	local pos = go.get_position()
-
-	-- get chunk we're standing on
-	local chunk = world.get_chunk(pos.x, pos.z)
-
-	collision.set_layers(chunk.layers)
+	collision.set_world(world)  -- Pass your world module
 end
 
 local function handle_animations(self)
@@ -91,25 +87,6 @@ local function handle_animations(self)
 		end
 		self.last_direction = self.direction
 	end
-end
-
-local function face_camera_y(self)
-	-- get camera forward
-	local cam_rot = go.get_rotation(self.camera)
-	local cam_forward = vmath.rotate(cam_rot, vmath.vector3(0, 0, -1))
-
-	-- Flatten to XZ plane so it doesn't tilt
-	cam_forward.y = 0
-	cam_forward = vmath.normalize(cam_forward)
-
-	-- Get angle around Y
-	local angle = math.atan2(cam_forward.x, cam_forward.y)
-	-- Defold's forward is -Z
-
-	-- Build quaternion rotation around Y
-	local rot = vmath.quat_rotation_y(angle)
-
-	go.set_rotation(rot)
 end
 
 function update(self, dt)
@@ -141,6 +118,7 @@ function update(self, dt)
 		local normalized_movement = vmath.normalize(movement_vector)
 		target.x = pos.x + (normalized_movement.x * MAX_SPEED * dt)
 		target.z = pos.z + (normalized_movement.z * MAX_SPEED * dt)
+		-- todo account for gravity
 
 		local player = {
 			x = pos.x,
@@ -151,9 +129,11 @@ function update(self, dt)
 			depth = 8
 		}
 
-		-- get chunk we're standing on
-		local chunk = world.get_chunk(pos.x, pos.z)
-		collision.set_layers(chunk.layers)
+-- 		local chunk_world_x, chunk_world_z = utils.world_to_chunk(target.x, target.z)
+-- 
+-- 		-- get chunk we're standing on
+-- 		local chunk = world.get_chunk(chunk_world_x, chunk_world_z)
+-- 		collision.set_layers(chunk.layers)
 
 		local move_result = collision.move_with_collision(
 			player.x, player.y, player.z,

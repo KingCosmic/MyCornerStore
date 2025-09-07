@@ -91,8 +91,8 @@ local function create_mesh(buffer, light)
 	go.set(msg.url(nil, id, 'mesh'), 'light', light)
 	
 	local mesh = {
-		x = 0,
-		z = 0,
+		x = nil,
+		z = nil,
 		active = false,
 		buffer,
 		id = id

@@ -61,9 +61,9 @@ instances {
   prototype: "/player/player.go"
   children: "rendy"
   position {
-    x: 128.0
+    x: 140.0
     y: 17.0
-    z: 128.0
+    z: 140.0
   }
 }
 instances {
