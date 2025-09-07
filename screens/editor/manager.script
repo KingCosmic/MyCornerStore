@@ -1,0 +1,78 @@
+local world = require 'newiso.world'
+local utils = require 'newiso.utils'
+local state = require 'screens.editor.state'
+local rendy = require 'rendy.rendy'
+
+function init(self)
+	msg.post('.', 'acquire_input_focus')
+
+	self.camera = hash('/rendy')
+	self.ortho = true
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash('touch') and action.pressed then
+		local near_mouse = vmath.vector3(action.screen_x, action.screen_y, 0)
+		local far_mouse = vmath.vector3(action.screen_x, action.screen_y, 1)
+
+		local near_world = rendy.screen_to_world(hash('/rendy'), near_mouse)
+		local far_world = rendy.screen_to_world(hash('/rendy'), far_mouse)
+
+		local pos = go.get_position(self.camera)
+
+		local function snapToNextTileBelow(y, tileHeight)
+			return math.floor((y - 1) / tileHeight) * tileHeight
+		end
+
+		-- go down from start to 0 moving by tileheight
+		-- assume we start at 64 then it would go.
+		-- 64 -> 48 -> 32 -> 16 -> 0
+		local chunk, tile_x, tile_y, tile_z
+		for end_y = snapToNextTileBelow(pos.y, utils.TILE_HEIGHT), 0, -utils.TILE_HEIGHT do
+			local x, y, z, chunk_x, chunk_z = utils.ray_to_tile(near_world, far_world, end_y)
+
+			-- grab chunk data for result.
+			chunk = world.get_chunk(chunk_x, chunk_z)
+
+			tile_x = x
+			tile_y = y
+			tile_z = z
+
+			-- check if tile exists at chunk_x, chunk_y
+			local tile = world.get_tile(chunk, tile_x, tile_y, tile_z)
+			if tile and tile ~= 0 then
+				break
+			end
+		end
+
+		if not chunk then
+			return
+		end
+
+		if state.placement == 'place' then
+			world.place_tile(chunk.x, chunk.z, tile_x, tile_y, tile_z, state.selected_tile)
+		elseif state.placement == 'paint' then
+			world.paint_tile(chunk.x, chunk.z, tile_x, tile_y, tile_z, state.selected_tile)
+		elseif state.placement == 'erase' then
+			world.erase_tile(chunk.x, chunk.z, tile_x, tile_y, tile_z)
+		end
+
+		msg.post('/renderer', 'update_mesh', { x = chunk.x, z = chunk.z })
+	end
+end
+
+local ortho_offset = vmath.vector3(20, 20, -20)
+local persp_offset = vmath.vector3(60, 90, -60)
+function on_message(self, message_id, message, sender)
+	if message_id == hash('toggle_ortho') then
+		self.ortho = not self.ortho
+		rendy.set(self.camera, 'orthographic', self.ortho)
+		rendy.set(self.camera, 'z_min', self.ortho and -1000 or 0.1)
+
+		if self.ortho then
+			go.set_position(ortho_offset, self.camera)
+		else
+			go.set_position(persp_offset, self.camera)
+		end
+	end
+end

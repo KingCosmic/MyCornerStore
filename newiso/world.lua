@@ -38,7 +38,6 @@ function M.create_chunk(x, z)
 		for h = 1, M.chunk_height do
 			chunk.layers[y][h] = {}
 			for w = 1, M.chunk_width do
-				
 				local tile = (y == 1) and 1 or 0
 
 				if h == 1 and w == 1 then
@@ -49,6 +48,11 @@ function M.create_chunk(x, z)
 					tile = 130
 				elseif h == M.chunk_height and w == M.chunk_width then
 					tile = 130
+				end
+
+				-- we only create data for 0, 0 by default.
+				if not (x == 0 and z == 0) then
+					tile = 0
 				end
 
 				chunk.layers[y][h][w] = tile

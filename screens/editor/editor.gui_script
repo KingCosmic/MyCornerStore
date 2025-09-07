@@ -4,24 +4,11 @@ local rendy = require 'rendy.rendy'
 function init(self)
     msg.post(".", "acquire_input_focus")
 
-    self.camera = hash('/rendy')
     self.toggle = gui.get_node('toggle')
-    self.ortho = false
 end
 
 function on_input(self, action_id, action)
     if action_id == hash('touch') and action.pressed and gui.pick_node(self.toggle, action.x, action.y) then
-        self.ortho = not self.ortho
-        rendy.set(self.camera, 'orthographic', self.ortho)
-
-        local pos = go.get_position(self.camera)
-
-        if self.ortho then
-            pos.z = 0
-        else
-            pos.z = 70
-        end
-
-        go.set_position(pos, self.camera)
+        msg.post('/main', 'toggle_ortho')
     end
 end

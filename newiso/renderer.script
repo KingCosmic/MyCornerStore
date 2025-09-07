@@ -4,6 +4,10 @@ local b_utils = require 'bufferutils'
 
 local f_url = '#factory'
 
+-- what object should the chunks be centered around.
+go.property('auto_center', true)
+go.property('centered_go', msg.url())
+
 go.property('tl_buffer', resource.buffer('/newiso/buffers/tl.buffer'))
 go.property('tm_buffer', resource.buffer('/newiso/buffers/tm.buffer'))
 go.property('tr_buffer', resource.buffer('/newiso/buffers/tr.buffer'))
@@ -116,21 +120,6 @@ function init(self)
 	msg.post('.', 'acquire_input_focus')
 end
 
--- function on_input(self, action_id, action)
--- 	-- move directional light based on input
--- 	local w, h = window.get_size()
--- 
--- 	local halfwidth = w * 0.5
--- 	local halfheight = h * 0.5
--- 
--- 	self.light.x = 2 * ((action.x - halfwidth) / halfwidth)
--- 	self.light.y = 2 * ((action.y - halfheight) / halfheight)
--- 
--- 	for i = 0, #meshes do
--- 		go.set(msg.url(nil, meshes[i].id, 'mesh'), 'light', self.light)
--- 	end
--- end
-
 local function get_free_mesh()
 	for m = 1, #meshes do
 		local mesh = meshes[m]
@@ -144,7 +133,11 @@ local function get_free_mesh()
 end
 
 function update(self, dt)
-	local pos = go.get_position('/rendy')
+	if not self.auto_center then
+		return
+	end
+
+	local pos = go.get_position(self.centered_go)
 	local current_chunks = utils.get_chunks_in_radius(pos.x, pos.z, 1)
 
 	local active_mesh_keys = {}

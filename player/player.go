@@ -3,18 +3,6 @@ components {
   component: "/player/player.script"
 }
 embedded_components {
-  id: "mesh"
-  type: "mesh"
-  data: "material: \"/newiso/chunk/chunk.material\"\n"
-  "vertices: \"/player/player.buffer\"\n"
-  "textures: \"/assets/people/blank/idle.png\"\n"
-  ""
-  rotation {
-    z: 0.38268343
-    w: 0.9238795
-  }
-}
-embedded_components {
   id: "sprite"
   type: "sprite"
   data: "default_animation: \"down\"\n"
@@ -25,11 +13,15 @@ embedded_components {
   "}\n"
   ""
   position {
-    y: 20.0
+    y: 9.0
+  }
+  rotation {
+    y: -0.38268343
+    w: 0.9238795
   }
   scale {
-    x: 0.1
-    y: 0.1
-    z: 0.1
+    x: 0.05
+    y: 0.05
+    z: 0.05
   }
 }

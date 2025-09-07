@@ -10,7 +10,7 @@ M.tiles_per_col = 32
 
 -- 3D Raycast function that goes from start position to a specific z value
 -- Returns the end position where the ray hits the target z
-local function raycast_to_z(startPos, throughPos, targetZ)
+local function raycast_to_y(startPos, throughPos, targetY)
 	-- Extract coordinates
 	local x1, y1, z1 = startPos.x, startPos.y, startPos.z
 	local x2, y2, z2 = throughPos.x, throughPos.y, throughPos.z
@@ -21,25 +21,25 @@ local function raycast_to_z(startPos, throughPos, targetZ)
 	local dz = z2 - z1
 
 	-- Check if ray direction is valid for reaching the target Z
-	if dz == 0 then
-		error("Ray is parallel to target Z plane - no intersection possible")
+	if dy == 0 then
+		error("Ray is parallel to target y plane - no intersection possible")
 	end
 
 	-- Check if ray is going in the wrong direction
-	if (targetZ < z1 and dz >= 0) or (targetZ > z1 and dz <= 0) then
-		error("Ray is pointing away from target Z plane")
+	if (targetY < y1 and dy >= 0) or (targetY > y1 and dy <= 0) then
+		error("Ray is pointing away from target Y plane")
 	end
 
-	-- Calculate parameter t where ray intersects targetZ
+	-- Calculate parameter t where ray intersects targetY
 	-- Ray equation: P(t) = start + t * direction
-	-- For targetZ: z1 + t * dz = targetZ
-	-- So: t = (targetZ - z1) / dz
-	local t = (targetZ - z1) / dz
+	-- For targetY: y1 + t * dy = targetY
+	-- So: t = (targetY - y1) / dy
+	local t = (targetY - y1) / dy
 
 	-- Calculate intersection point
 	local endX = x1 + t * dx
-	local endY = y1 + t * dy
-	local endZ = targetZ  -- This will be exactly targetZ
+	local endY = targetY -- This will be exactly targetY
+	local endZ = z1 + t * dz
 
 	-- Calculate the actual distance traveled
 	local distance = math.sqrt(
@@ -59,8 +59,8 @@ end
 
 -- convert mouse pos to world point, then shoot ray from camera postion to mouse position
 -- useful for 3d cameras that have rotations applied
-function M.ray_to_tile(near, far, target_z)
-	local result = raycast_to_z(near, far, target_z)
+function M.ray_to_tile(near, far, target_y)
+	local result = raycast_to_y(near, far, target_y)
 
 	-- Convert to tile coordinates
 	return M.world_to_tile(result.x, result.y, result.z)
@@ -335,8 +335,8 @@ function M.world_to_tile(world_x, world_y, world_z, offset)
 
 	-- Convert to tile coordinates within the chunk (1-16)
 	local tile_x = math.floor(chunk_local_x / M.TILE_WIDTH)
-	local tile_y = math.floor(chunk_local_z / M.TILE_HEIGHT)
-	local tile_z = math.floor(local_z / M.TILE_HEIGHT)
+	local tile_y = math.floor(local_y / M.TILE_HEIGHT)
+	local tile_z = math.floor(chunk_local_z / M.TILE_HEIGHT)
 
 	-- Clamp to chunk bounds
 	if tile_x == 0 then

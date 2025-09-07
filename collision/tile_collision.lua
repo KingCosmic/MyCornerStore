@@ -23,8 +23,8 @@ end
 -- Check if tile coordinates are valid
 function M.is_valid_tile(x, y, z)
 	return x >= 1 and x <= M.MAP_WIDTH and 
-	y >= 1 and y <= M.MAP_HEIGHT and 
-	z >= 1 and z <= M.MAP_DEPTH
+	z >= 1 and z <= M.MAP_HEIGHT and 
+	y >= 1 and y <= M.MAP_DEPTH
 end
 
 -- Get tile ID at specific layer coordinates
@@ -33,11 +33,11 @@ function M.get_tile_id(x, y, z)
 		return 0
 	end
 
-	if not M.layers[z] or not M.layers[z][y] then
+	if not M.layers[y] or not M.layers[y][z] then
 		return 0
 	end
 
-	return M.layers[z][y][x] or 0
+	return M.layers[y][z][x] or 0
 end
 
 -- Check if tile is solid (non-zero tile_id)
@@ -48,28 +48,28 @@ end
 -- Convert world position to tile coordinates
 function M.world_to_tile(world_x, world_y, world_z)
 	local tile_x = math.floor(world_x / M.TILE_WIDTH) + 1
-	local tile_y = math.floor(world_y / M.TILE_HEIGHT) + 1
-	local tile_z = math.floor(world_z / M.TILE_DEPTH) + 1
+	local tile_y = math.floor(world_y / M.TILE_DEPTH) + 1
+	local tile_z = math.floor(world_z / M.TILE_HEIGHT) + 1
 	return tile_x, tile_y, tile_z
 end
 
 -- Convert tile coordinates to world position (center of tile)
 function M.tile_to_world(tile_x, tile_y, tile_z)
 	local world_x = (tile_x - 1) * M.TILE_WIDTH + M.TILE_WIDTH / 2
-	local world_y = (tile_y - 1) * M.TILE_HEIGHT + M.TILE_HEIGHT / 2
-	local world_z = (tile_z - 1) * M.TILE_DEPTH + M.TILE_DEPTH / 2
+	local world_y = (tile_y - 1) * M.TILE_DEPTH + M.TILE_DEPTH / 2
+	local world_z = (tile_z - 1) * M.TILE_HEIGHT + M.TILE_HEIGHT / 2
 	return world_x, world_y, world_z
 end
 
--- Get the ground height (top of highest solid tile) at X,Y world position
-function M.get_ground_height_at_position(world_x, world_y)
-	local tile_x, tile_y = M.world_to_tile(world_x, world_y, 0)
+-- Get the ground height (top of highest solid tile) at X,Z world position
+function M.get_ground_height_at_position(world_x, world_z)
+	local tile_x, tile_y, tile_z = M.world_to_tile(world_x, 0, world_z)
 
 	-- Search from top to bottom for the highest solid tile
-	for z = M.MAP_DEPTH, 1, -1 do
-		if M.is_tile_solid(tile_x, tile_y, z) then
+	for y = M.MAP_DEPTH, 1, -1 do
+		if M.is_tile_solid(tile_x, y, tile_z) then
 			-- Return the top surface of this tile
-			return z * M.TILE_DEPTH
+			return y * M.TILE_DEPTH
 		end
 	end
 
@@ -89,8 +89,8 @@ function M.get_solid_tiles_in_region(min_x, min_y, min_z, max_x, max_y, max_z)
 	local tile_min_x, tile_min_y, tile_min_z = M.world_to_tile(min_x, min_y, min_z)
 	local tile_max_x, tile_max_y, tile_max_z = M.world_to_tile(max_x, max_y, max_z)
 
-	for z = tile_min_z, tile_max_z do
-		for y = tile_min_y, tile_max_y do
+	for y = tile_min_y, tile_max_y do
+		for z = tile_min_z, tile_max_z do
 			for x = tile_min_x, tile_max_x do
 				if M.is_tile_solid(x, y, z) then
 					local world_x, world_y, world_z = M.tile_to_world(x, y, z)
@@ -118,13 +118,13 @@ function M.check_collision(x, y, z, width, height, depth)
 	-- Calculate the bounding box
 	local min_x = x - width / 2
 	local max_x = x + width / 2
-	local min_y = y - height / 2
-	local max_y = y + height / 2
-	local min_z = z
-	local max_z = z + depth
+	local min_y = y
+	local max_y = y + depth
+	local min_z = z - height / 2
+	local max_z = z + height / 2
 
 	-- Get ground height at this position
-	results.ground_height = M.get_ground_height_at_position(x, y)
+	results.ground_height = M.get_ground_height_at_position(x, z)
 
 	-- Get all solid tiles in the object's bounding box
 	local solid_tiles = M.get_solid_tiles_in_region(min_x, min_y, min_z, max_x, max_y, max_z)
@@ -133,10 +133,10 @@ function M.check_collision(x, y, z, width, height, depth)
 		-- Calculate tile bounding box
 		local tile_min_x = tile.world_x - M.TILE_WIDTH / 2
 		local tile_max_x = tile.world_x + M.TILE_WIDTH / 2
-		local tile_min_y = tile.world_y - M.TILE_HEIGHT / 2
-		local tile_max_y = tile.world_y + M.TILE_HEIGHT / 2
-		local tile_min_z = tile.world_z - M.TILE_DEPTH / 2
-		local tile_max_z = tile.world_z + M.TILE_DEPTH / 2
+		local tile_min_y = tile.world_y - M.TILE_DEPTH / 2
+		local tile_max_y = tile.world_y + M.TILE_DEPTH / 2
+		local tile_min_z = tile.world_z - M.TILE_HEIGHT / 2
+		local tile_max_z = tile.world_z + M.TILE_HEIGHT / 2
 
 		-- Check for AABB collision
 		if min_x < tile_max_x and max_x > tile_min_x and
@@ -157,12 +157,12 @@ function M.move_with_collision(current_x, current_y, current_z, target_x, target
 		y = current_y,
 		z = current_z,
 		collided = false,
-		ground_z = 0,
-		blocked_directions = {x = false, y = false, z = false}
+		ground_y = 0,
+		blocked_directions = { x = false, y = false, z = false }
 	}
 
 	-- Get ground height at target position
-	result.ground_z = M.get_ground_height_at_position(target_x, target_y)
+	result.ground_y = M.get_ground_height_at_position(target_x, target_z)
 
 	-- Try full movement first
 	local collision = M.check_collision(target_x, target_y, target_z, width, height, depth)
@@ -184,23 +184,23 @@ function M.move_with_collision(current_x, current_y, current_z, target_x, target
 		result.blocked_directions.x = true
 	end
 
-	-- Try Y movement only
-	collision = M.check_collision(current_x, target_y, current_z, width, height, depth)
-	if not collision.collision then
-		result.y = target_y
-	else
-		result.blocked_directions.y = true
-	end
-
-	-- Try Z movement only (jumping/falling)
+	-- Try Z movement only
 	collision = M.check_collision(current_x, current_y, target_z, width, height, depth)
 	if not collision.collision then
 		result.z = target_z
 	else
 		result.blocked_directions.z = true
+	end
+
+	-- Try Y movement only (jumping/falling)
+	collision = M.check_collision(current_x, target_y, current_z, width, height, depth)
+	if not collision.collision then
+		result.y = target_y
+	else
+		result.blocked_directions.y = true
 		-- If blocked vertically and trying to fall, snap to ground
-		if target_z < current_z and result.ground_z > 0 then
-			result.z = result.ground_z
+		if target_y < current_y and result.ground_y > 0 then
+			result.y = result.ground_y
 		end
 	end
 
@@ -232,6 +232,7 @@ function M.raycast(start_x, start_y, start_z, end_x, end_y, end_z, step_size)
 
 		if M.is_solid_at_position(test_x, test_y, test_z) then
 			local tile_x, tile_y, tile_z = M.world_to_tile(test_x, test_y, test_z)
+
 			return {
 				hit = true,
 				x = test_x,

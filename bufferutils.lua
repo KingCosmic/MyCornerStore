@@ -7,7 +7,10 @@ function M.fill_stream(stream, data)
 end
 
 function M.render_mesh(data, mesh_url)
-	-- Number of vertices is just the length of utils.vertices
+	if #data.vertices == 0 then
+		return
+	end
+
 	local vertex_count = #data.vertices / 3
 
 	-- Create a vertex buffer with position and texcoord attributes

@@ -1,5 +1,4 @@
 local collision = require 'collision.tile_collision'
-local b_utils = require 'bufferutils'
 local world = require 'newiso.world'
 
 go.property('idle', resource.tile_source('/assets/people/blank/blank_idle.tilesource'))
@@ -14,19 +13,19 @@ local DIRECTIONS = {
 	},
 	UP_LEFT = {
 		anim = 'up-left',
-		flipped = false,
+		flipped = true,
 	},
 	UP_RIGHT = {
 		anim = 'up-left',
-		flipped = true,
+		flipped = false,
 	},
 	LEFT = {
 		anim = 'left',
-		flipped = false,
+		flipped = true,
 	},
 	RIGHT = {
 		anim = 'left',
-		flipped = true,
+		flipped = false,
 	},
 	DOWN = {
 		anim = 'down',
@@ -34,11 +33,11 @@ local DIRECTIONS = {
 	},
 	DOWN_LEFT = {
 		anim = 'down-left',
-		flipped = false,
+		flipped = true,
 	},
 	DOWN_RIGHT = {
 		anim = 'down-left',
-		flipped = true,
+		flipped = false,
 	},
 }
 
@@ -47,76 +46,15 @@ local MAX_SPEED = 32
 -- Movement vectors for different input combinations
 local MOVEMENT_VECTORS = {
 	-- Cardinal directions move straight on screen
-	UP = vmath.vector3(-1, 0, 1),        -- Straight up
-	DOWN = vmath.vector3(1, 0, -1),     -- Straight down
-	LEFT = vmath.vector3(-1, 0, -1),     -- Straight left
-	RIGHT = vmath.vector3(1, 0, 1),     -- Straight right
-	UP_LEFT = vmath.vector3(-1, 0, 0),    -- Up Left
-	UP_RIGHT = vmath.vector3(0, 0, 1),    -- Up Right
-	DOWN_LEFT = vmath.vector3(0, 0, -1), -- Down Left
-	DOWN_RIGHT = vmath.vector3(1, 0, 0)  -- Down right
+	UP = vmath.vector3(-1, 0, 1),        	-- Straight up
+	DOWN = vmath.vector3(1, 0, -1),     	-- Straight down
+	LEFT = vmath.vector3(1, 0, 1),     		-- Straight left
+	RIGHT = vmath.vector3(-1, 0, -1),     	-- Straight right
+	UP_LEFT = vmath.vector3(0, 0, 1),    	-- Up Left
+	UP_RIGHT = vmath.vector3(-1, 0, 0),    	-- Up Right
+	DOWN_LEFT = vmath.vector3(1, 0, 0), 	-- Down Left
+	DOWN_RIGHT = vmath.vector3(0, 0, -1)  	-- Down right
 }
-
--- tiles per row, tiles per column
-local function get_frame_uv(frame, tpr, tpc)
-	if frame == 0 then
-		return { u1 = 0, v1 = 0, u2 = 1, v2 = 1 }
-	end
-
-	local tile_index = (frame - 1) % (tpr * tpc)
-	local tile_x = tile_index % tpr
-	local tile_y = math.floor(tile_index / tpr)
-
-	local tile_size_u = 1.0 / tpr
-	local tile_size_v = 1.0 / tpc
-
-	local padding = 0.001
-	local u1 = tile_x * tile_size_u + padding
-	local u2 = (tile_x + 1) * tile_size_u - padding
-
-	-- FLIP Y
-	local v2 = 1.0 - (tile_y * tile_size_v + padding)
-	local v1 = 1.0 - ((tile_y + 1) * tile_size_v - padding)
-
-	return { u1 = u1, v1 = v1, u2 = u2, v2 = v2 }
-end
-
--- Push vertices (x, y, z, u, v) in a flat array
-local data = { vertices = {}, uvs = {}, normals = {}, colors = {} }
-local function push_vertex(x, y, z, u, v)
-	table.insert(data.vertices, x)
-	table.insert(data.vertices, y)
-	table.insert(data.vertices, z)
-	table.insert(data.uvs, u)
-	table.insert(data.uvs, v)
-	table.insert(data.normals, -1)
-	table.insert(data.normals, -1)
-	table.insert(data.normals, -1)
-	table.insert(data.colors, 1)
-	table.insert(data.colors, 1)
-	table.insert(data.colors, 1)
-	table.insert(data.colors, 1)
-end
-
-local function create_quad(width, height, frame, tpr, tpc)
-	local uv = get_frame_uv(frame, tpr, tpc)
-
-	-- Define corners (clockwise)
-	local bl_x, bl_z = 0, 0
-	local br_x, br_z = width, 0
-	local tl_x, tl_z = 0, 0
-	local tr_x, tr_z = width, 0
-
-	-- Triangle 1
-	push_vertex(bl_x, 0, bl_z, uv.u1, uv.v1)
-	push_vertex(br_x, 0, br_z, uv.u2, uv.v1)
-	push_vertex(tl_x, height, tl_z, uv.u1, uv.v2)
-
-	-- Triangle 2
-	push_vertex(tl_x,height, tl_z, uv.u1, uv.v2)
-	push_vertex(br_x, 0, br_z, uv.u2, uv.v1)
-	push_vertex(tr_x, height, tr_z, uv.u2, uv.v2)
-end
 
 function init(self)
 	msg.post('.', 'acquire_input_focus')
@@ -129,13 +67,9 @@ function init(self)
 	self.last_flipped = false
 
 	local pos = go.get_position()
-	pos.z = 16
-	go.set_position(pos)
-	create_quad(16, 32, 1, 8, 5)
-	b_utils.render_mesh(data, '#mesh')
 
 	-- get chunk we're standing on
-	local chunk = world.get_chunk(0, 0)
+	local chunk = world.get_chunk(pos.x, pos.z)
 
 	collision.set_layers(chunk.layers)
 end
@@ -157,6 +91,25 @@ local function handle_animations(self)
 		end
 		self.last_direction = self.direction
 	end
+end
+
+local function face_camera_y(self)
+	-- get camera forward
+	local cam_rot = go.get_rotation(self.camera)
+	local cam_forward = vmath.rotate(cam_rot, vmath.vector3(0, 0, -1))
+
+	-- Flatten to XZ plane so it doesn't tilt
+	cam_forward.y = 0
+	cam_forward = vmath.normalize(cam_forward)
+
+	-- Get angle around Y
+	local angle = math.atan2(cam_forward.x, cam_forward.y)
+	-- Defold's forward is -Z
+
+	-- Build quaternion rotation around Y
+	local rot = vmath.quat_rotation_y(angle)
+
+	go.set_rotation(rot)
 end
 
 function update(self, dt)
@@ -193,10 +146,14 @@ function update(self, dt)
 			x = pos.x,
 			y = pos.y,
 			z = pos.z,
-			width = 1,
-			height = 1,
+			width = 7,
+			height = 7,
 			depth = 8
 		}
+
+		-- get chunk we're standing on
+		local chunk = world.get_chunk(pos.x, pos.z)
+		collision.set_layers(chunk.layers)
 
 		local move_result = collision.move_with_collision(
 			player.x, player.y, player.z,
@@ -207,19 +164,26 @@ function update(self, dt)
 		go.set_position(vmath.vector3(move_result.x, move_result.y, move_result.z))
 	end
 
-	-- handle_animations(self)
+	handle_animations(self)
+	-- handle_rotation(self)
 end
 
 function on_input(self, action_id, action)
 	-- Handle input - store raw input values
-	if action_id == hash('move-up') then
+	if action_id == hash('key_w') then
 		self.input_y = (action.released and 0) or 1
-	elseif action_id == hash('move-down') then
+	elseif action_id == hash('key_s') then
 		self.input_y = (action.released and 0) or -1
-	elseif action_id == hash('move-left') then
+	elseif action_id == hash('key_a') then
 		self.input_x = (action.released and 0) or -1
-	elseif action_id == hash('move-right') then
+	elseif action_id == hash('key_d') then
 		self.input_x = (action.released and 0) or 1
+	end
+
+	if action_id == hash('key_q') then
+		self.input_q = (action.released and 0) or 1
+	elseif action_id == hash('key_e') then
+		self.input_e = (action.released and 0) or 1
 	end
 
 	-- Determine animation direction based on input

@@ -18,6 +18,10 @@ key_trigger {
   input: KEY_ESC
   action: "pause_game"
 }
+key_trigger {
+  input: KEY_5
+  action: ""
+}
 mouse_trigger {
   input: MOUSE_BUTTON_LEFT
   action: "touch"
